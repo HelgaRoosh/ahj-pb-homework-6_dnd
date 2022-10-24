@@ -2,6 +2,8 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/uo46abe21f27boq3?svg=true)](https://ci.appveyor.com/project/HelgaRoosh/ahj-pb-homework-6-dnd)
 
+https://helgaroosh.github.io/ahj-pb-homework-6_dnd/
+
 # Домашнее задание к занятию "6. Работа с файлами, DnD"
 
 Правила сдачи задания:
