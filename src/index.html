@@ -7,14 +7,55 @@
     <title>Document</title>
 </head>
 <body>
-    <div class="container">
-        <button class="container_button">
-            Click to toggle popover
-          </button>
-          <div class="container_popover">
-            <div class="popover_title">Popover title</div>
-            <div class="popover_text">And here's some amazing content. It's very engaging. Right?</div>
-          </div>
+  <div class="container">
+    <div class="columns">
+    <div class="column-item">
+      <div class="column_title">
+        <h3>TODO</h3>
+      </div>   
+      <div class="cards">
+        <div class="card_content">
+          <textarea class="card_input hidden" type="text" placeholder="Enter a title for this card"></textarea>
+          <button class="card_delete hidden">&#10006;</button>
+        </div>
+      </div>         
+      <div class="card_control">        
+        <span class="an_card_add">+ Add another card</span>
+        <button class="card_add hidden">Add card</button>
+      </div>
     </div>
+    <div class="column-item">
+      <div class="column_title">
+        <h3>IN PROGRESS</h3>
+      </div>
+      <div class="cards">
+        <div class="card_content">
+          <textarea class="card_input hidden" type="text" placeholder="Enter a title for this card"></textarea>
+          <button class="card_delete hidden">&#10006;</button>
+        </div>
+      </div>      
+      <div class="card_control">        
+        <span class="an_card_add">+ Add another card</span>
+        <button class="card_add hidden">Add card</button>
+      </div>     
+    </div>
+    <div class="column-item">
+      <div class="column_title">
+        <h3>DONE</h3>
+      </div>  
+      <div class="cards">
+        <div class="card_content">
+          <textarea class="card_input hidden" type="text" placeholder="Enter a title for this card"></textarea>
+          <button class="card_delete hidden">&#10006;</button>
+        </div>
+      </div>        
+      <div class="card_control">        
+        <span class="an_card_add">+ Add another card</span>
+        <button class="card_add hidden">Add card</button>
+      </div>
+    </div>
+  </div>
+  </div>
+  
 </body>
 </html>
