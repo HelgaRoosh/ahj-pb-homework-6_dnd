@@ -145,3 +145,9 @@
 .hidden {
   display: none;
 }
+
+.dragger {
+  position: absolute;
+  z-index: 999;
+  pointer-events: none;
+}
