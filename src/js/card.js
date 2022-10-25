@@ -35,7 +35,7 @@ export default class Card {
     if (this.text === '') { // не пустое ли значение
       this.delete(this.card);
     }
-    
+
     this.card.querySelector('.card_input').blur();// убирает фокус
   }
   // там же подписаться на событие навести на карту и функция показать крестик

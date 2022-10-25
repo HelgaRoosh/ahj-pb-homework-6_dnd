@@ -57,12 +57,8 @@ export default class CardManager {
 
     newcard.saveCard();// сохранить карточку если не пустая
 
-    console.log(newcard);
-    // Card {container: div.container, column: 'progress', 
-    // id: 694700, card: div.card_content.data-id_694700, text: 'jhgikugvikjbhlou', …}
     // card это объект, надо присвоить ему саму карточку в разметке
-
-    const card = newcard.card;
+    const { card } = newcard;
     card.addEventListener('mouseover', (e) => { // событие наведения на карточку
       e.preventDefault();
       this.showClose(card);
@@ -74,8 +70,8 @@ export default class CardManager {
     });
 
     // card.addEventListener('mouseover', (e) => { // событие пертаскивания карточки
-      // e.preventDefault();
-      // this.eventCardMove(card);
+    // e.preventDefault();
+    // this.eventCardMove(card);
     // });
   }
 
