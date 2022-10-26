@@ -3,11 +3,14 @@ import Card from './card';
 export default class CardManager {
   constructor() {
     this.container = null;
+
+    this.actualElement = null;
   }
   // здесь взаимодействие с кнопками в колонке и между колонок
 
   bindToDOM(container) {
     this.container = container;
+
     //  поlписываемся на событие нажатия +add another card
     this.eventListenerAdd('todo');
     this.eventListenerAdd('progress');
@@ -57,8 +60,9 @@ export default class CardManager {
 
     newcard.saveCard();// сохранить карточку если не пустая
 
-    // card это объект, надо присвоить ему саму карточку в разметке
+    // newcard это объект, надо присвоить саму карточку в разметке
     const { card } = newcard;
+
     card.addEventListener('mouseover', (e) => { // событие наведения на карточку
       e.preventDefault();
       this.showClose(card);
@@ -69,10 +73,10 @@ export default class CardManager {
       this.hiddenClose(card);
     });
 
-    // card.addEventListener('mouseover', (e) => { // событие пертаскивания карточки
-    // e.preventDefault();
-    // this.eventCardMove(card);
-    // });
+    card.addEventListener('mousedown', (e) => { // событие пертаскивания карточки
+      e.preventDefault();
+      this.eventCardMove(newcard.id);
+    });
   }
 
   showClose(card) { // показать крестик
@@ -98,10 +102,10 @@ export default class CardManager {
       this.hiddenClose(card);
     });
 
-    // card.removeaddEventListener('mouseover', (e) => { // событие пертаскивания карточки
-    // e.preventDefault();
-    // this.eventCardMove(card);
-    // });
+    card.removeEventListener('mousedown', (e) => { // событие пертаскивания карточки
+      e.preventDefault();
+      this.eventCardMove(card);
+    });
 
     close.removeEventListener('mousedown', (e) => {
       e.preventDefault();
@@ -122,9 +126,45 @@ export default class CardManager {
   // событие перетаскивания карточки
   // подписаться на захват карточки и определение ее в чужую колонку
   // если попала в чужую и отпустили событие запихивание этой карточки в новую колонку(та же функц)
-  // eventCardMove(card) {
+  eventCardMove(id) {
+    this.actualElement = document.querySelector(`.data-id_${id}`);
 
-  // }
+    this.actualElement.classList.add('dragged');
+
+    console.log(this.actualElement);// +
+    console.log('this.actualElement2');// +
+
+    document.documentElement.addEventListener('mouseup', this.onMouseUp.bind(this));
+    document.documentElement.addEventListener('mouseover', this.onMouseOver.bind(this));
+  }
 
   //
+  onMouseUp(e) {
+    const mouseUpItem = e.target;
+
+    console.log(mouseUpItem);
+    console.log('this.actualElement4');// +
+
+    // this.items = document.querySelector('.card_content');
+    // Неперехваченное исключение DOMException: не удалось выполнить 'insertBefore' на 'Узле': 
+    // Новый дочерний элемент содержит родительский элемент.
+
+    this.items = document.querySelector('.cards');
+    // Неперехваченное исключение DOMException: не удалось выполнить 'insertBefore' на 'Узле':
+    // Узел, перед которым должен быть вставлен новый узел, не является дочерним по отношению к этому узлу.
+
+    this.items.insertBefore(this.actualElement, mouseUpItem);    
+
+    this.actualElement.classList.remove('dragged');
+    this.actualElement = undefined;
+
+    document.documentElement.removeEventListener('mouseup', this.onMouseUp.bind(this));
+    document.documentElement.removeEventListener('mouseover', this.onMouseOver.bind(this));
+  }
+
+  onMouseOver(e) {
+    console.log('this.actualElement3');// +
+    this.actualElement.style.top = `${e.clientY}px`;
+    this.actualElement.style.left = `${e.clientX}px`;
+  }
 }
