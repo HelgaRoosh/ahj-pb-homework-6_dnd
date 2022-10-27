@@ -131,9 +131,6 @@ export default class CardManager {
 
     this.actualElement.classList.add('dragged');
 
-    console.log(this.actualElement);// +
-    console.log('this.actualElement2');// +
-
     document.documentElement.addEventListener('mouseup', this.onMouseUp.bind(this));
     document.documentElement.addEventListener('mouseover', this.onMouseOver.bind(this));
   }
@@ -142,18 +139,15 @@ export default class CardManager {
   onMouseUp(e) {
     const mouseUpItem = e.target;
 
-    console.log(mouseUpItem);
-    console.log('this.actualElement4');// +
-
     // this.items = document.querySelector('.card_content');
-    // Неперехваченное исключение DOMException: не удалось выполнить 'insertBefore' на 'Узле': 
+    // Неперехваченное исключение DOMException: не удалось выполнить 'insertBefore' на 'Узле':
     // Новый дочерний элемент содержит родительский элемент.
 
     this.items = document.querySelector('.cards');
     // Неперехваченное исключение DOMException: не удалось выполнить 'insertBefore' на 'Узле':
-    // Узел, перед которым должен быть вставлен новый узел, не является дочерним по отношению к этому узлу.
+    // Узел,перед кот должен быть вставлен новыйузел,не является дочерним по отношению к этомуузлу
 
-    this.items.insertBefore(this.actualElement, mouseUpItem);    
+    this.items.insertBefore(this.actualElement, mouseUpItem);
 
     this.actualElement.classList.remove('dragged');
     this.actualElement = undefined;
@@ -163,7 +157,6 @@ export default class CardManager {
   }
 
   onMouseOver(e) {
-    console.log('this.actualElement3');// +
     this.actualElement.style.top = `${e.clientY}px`;
     this.actualElement.style.left = `${e.clientX}px`;
   }
