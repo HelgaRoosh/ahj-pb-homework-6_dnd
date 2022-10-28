@@ -133,7 +133,7 @@ export default class CardManager {
   // если попала в чужую и отпустили событие запихивание этой карточки в новую колонку(та же функц)
   eventCardMove(id) {
     this.actualElement = document.querySelector(`.data-id_${id}`);
-    console.log(this.actualElement);
+    // console.log(this.actualElement);
 
     this.actualElement.classList.add('dragged');
 
