@@ -3,8 +3,13 @@ import Card from './card';
 export default class CardManager {
   constructor() {
     this.container = null;
-
     this.actualElement = null;
+
+    this.onMouseOver = this.onMouseOver.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
+    this.finalMouseUp = this.finalMouseUp.bind(this);
+
+    this.eventCardMove = this.eventCardMove.bind(this);
   }
   // здесь взаимодействие с кнопками в колонке и между колонок
 
@@ -65,7 +70,7 @@ export default class CardManager {
 
     card.addEventListener('mouseover', (e) => { // событие наведения на карточку
       e.preventDefault();
-      this.showClose(card);
+      this.showClose(card, newcard);
     });
 
     card.addEventListener('mouseout', (e) => { // событие ушли с карточки
@@ -79,17 +84,17 @@ export default class CardManager {
     });
   }
 
-  showClose(card) { // показать крестик
+  showClose(card, newcard) { // показать крестик
     const close = card.querySelector('.card_delete');
     close.classList.remove('hidden');
 
     close.addEventListener('mousedown', (e) => {
       e.preventDefault();
-      this.closeClick(card, close);
+      this.closeClick(card, close, newcard);
     });
   }
 
-  closeClick(card, close) { // клик по крестику-> удалить карточку
+  closeClick(card, close, newcard) { // клик по крестику-> удалить карточку
     card.remove();
     // отписываемся от всех событий на карточке и крестике
     card.removeEventListener('mouseover', (e) => { // событие наведения на карточку
@@ -104,7 +109,7 @@ export default class CardManager {
 
     card.removeEventListener('mousedown', (e) => { // событие пертаскивания карточки
       e.preventDefault();
-      this.eventCardMove(card);
+      this.eventCardMove(newcard.id);
     });
 
     close.removeEventListener('mousedown', (e) => {
@@ -128,36 +133,91 @@ export default class CardManager {
   // если попала в чужую и отпустили событие запихивание этой карточки в новую колонку(та же функц)
   eventCardMove(id) {
     this.actualElement = document.querySelector(`.data-id_${id}`);
+    console.log(this.actualElement);
 
     this.actualElement.classList.add('dragged');
 
-    document.documentElement.addEventListener('mouseup', this.onMouseUp.bind(this));
-    document.documentElement.addEventListener('mouseover', this.onMouseOver.bind(this));
-  }
-
-  //
-  onMouseUp(e) {
-    const mouseUpItem = e.target;
-
-    // this.items = document.querySelector('.card_content');
-    // Неперехваченное исключение DOMException: не удалось выполнить 'insertBefore' на 'Узле':
-    // Новый дочерний элемент содержит родительский элемент.
-
-    this.items = document.querySelector('.cards');
-    // Неперехваченное исключение DOMException: не удалось выполнить 'insertBefore' на 'Узле':
-    // Узел,перед кот должен быть вставлен новыйузел,не является дочерним по отношению к этомуузлу
-
-    this.items.insertBefore(this.actualElement, mouseUpItem);
-
-    this.actualElement.classList.remove('dragged');
-    this.actualElement = undefined;
-
-    document.documentElement.removeEventListener('mouseup', this.onMouseUp.bind(this));
-    document.documentElement.removeEventListener('mouseover', this.onMouseOver.bind(this));
+    document.documentElement.addEventListener('mouseup', this.onMouseUp);
+    document.documentElement.addEventListener('mouseover', this.onMouseOver);
   }
 
   onMouseOver(e) {
     this.actualElement.style.top = `${e.clientY}px`;
     this.actualElement.style.left = `${e.clientX}px`;
+  }
+  //
+
+  onMouseUp(e) {
+    const { target } = e;
+
+    const targetColumn = target.closest('.column-item');
+    // мы внутри колонки
+    if (targetColumn !== null) {
+      const targetCards = targetColumn.querySelector('.cards');// место для карточек
+      let mouseUpItem;
+
+      // мы внутри контейнера для карточек
+      if (target.closest('.cards') !== null) {
+        const parent = target.closest('.card_content');
+        // попали внутрь какой то карточки
+        if (parent !== null) {
+          mouseUpItem = parent;
+          targetCards.insertBefore(this.actualElement, mouseUpItem);// ставим перед этой карточкой
+          this.finalMouseUp();
+          return;
+        }
+        // пустая обрасть в cards
+        mouseUpItem = targetCards.querySelector('.card_content');
+        if (mouseUpItem !== null) { // есть ли карточки в колонке
+          // если есть
+          targetCards.insertBefore(this.actualElement, mouseUpItem);// ставим перед этой карточкой
+          this.finalMouseUp();
+          return;
+        }
+        // если карточек в колонке нет
+        targetCards.insertAdjacentElement('beforeEnd', this.actualElement);// ставим карточку внутрь
+        this.finalMouseUp();
+        return;
+      }
+
+      // мы внутри контейнера с заголовком
+      if (target.closest('.column_title') !== null) {
+        // поставить первой в контейнер с карточками
+        targetCards.insertAdjacentElement('beforeBegin', this.actualElement);// ставим карточку внутрь
+        this.finalMouseUp();
+        return;
+      }
+
+      // мы внутри контейнера контроль
+      if (target.closest('.card_control') !== null) {
+        // поставить последней в контейнер с карточками
+        targetCards.insertAdjacentElement('beforeEnd', this.actualElement);// ставим карточку внутрь
+        this.finalMouseUp();
+        return;
+      }
+
+      // мы не попали ни в один контейнер в колонке
+      mouseUpItem = targetCards.querySelector('.card_content');
+      if (mouseUpItem !== null) { // есть ли карточки в колонке
+        // если есть
+        targetCards.insertBefore(this.actualElement, mouseUpItem);// ставим перед этой карточкой
+        this.finalMouseUp();
+        return;
+      }
+      // если карточек в колонке нет
+      targetCards.insertAdjacentElement('beforeEnd', this.actualElement);// ставим карточку внутрь
+      this.finalMouseUp();
+      return;
+    }
+    // мы не внутри колонки
+    this.finalMouseUp();
+  }
+
+  finalMouseUp() {
+    this.actualElement.classList.remove('dragged');
+    this.actualElement = undefined;
+
+    document.documentElement.removeEventListener('mouseup', this.onMouseUp);
+    document.documentElement.removeEventListener('mouseover', this.onMouseOver);
   }
 }
