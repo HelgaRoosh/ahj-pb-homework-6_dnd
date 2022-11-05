@@ -228,6 +228,7 @@ export default class CardManager {
     this.actualElement.classList.remove('dragged');
     this.actualElement = undefined;
 
+    document.body.style.cursor = 'auto';
     document.documentElement.removeEventListener('mouseup', this.onMouseUp);
     document.documentElement.removeEventListener('mouseover', this.onMouseOver);
   }
