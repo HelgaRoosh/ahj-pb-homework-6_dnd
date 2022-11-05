@@ -135,16 +135,16 @@ export default class CardManager {
   // если попала в чужую и отпустили событие запихивание этой карточки в новую колонку(та же функц)
   eventCardMove(e) {
     // this.actualElement = document.querySelector(`.data-id_${id}`);
-    // Метод getBoundingClientRect() возвращает объект DOMRect, 
+    // Метод getBoundingClientRect() возвращает объект DOMRect,
     // который содержит размеры элемента и его положение относительно видимой области просмотра.
-    // Если из координат курсора мыши (e.clientX и e.clientY) вычесть положение элемента, 
+    // Если из координат курсора мыши (e.clientX и e.clientY) вычесть положение элемента,
     // то можно получить внутреннее положение курсора и клика.
     const elemPosition = this.actualElement.getBoundingClientRect();
     this.cursorX = e.clientX - elemPosition.left;
     this.cursorY = e.clientY - elemPosition.top;
 
     this.actualElement.classList.add('dragged');
-    document.body.style.cursor = 'grabbing';// в css браузер подменяет его    
+    document.body.style.cursor = 'grabbing';// в css браузер подменяет его
 
     document.documentElement.addEventListener('mouseup', this.onMouseUp);
     document.documentElement.addEventListener('mouseover', this.onMouseOver);
