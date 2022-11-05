@@ -80,7 +80,8 @@ export default class CardManager {
 
     card.addEventListener('mousedown', (e) => { // событие пертаскивания карточки
       e.preventDefault();
-      this.eventCardMove(newcard.id);
+      this.actualElement = document.querySelector(`.data-id_${newcard.id}`);
+      this.eventCardMove(e);
     });
   }
 
@@ -109,7 +110,8 @@ export default class CardManager {
 
     card.removeEventListener('mousedown', (e) => { // событие пертаскивания карточки
       e.preventDefault();
-      this.eventCardMove(newcard.id);
+      this.actualElement = document.querySelector(`.data-id_${newcard.id}`);
+      this.eventCardMove(e);
     });
 
     close.removeEventListener('mousedown', (e) => {
@@ -131,19 +133,28 @@ export default class CardManager {
   // событие перетаскивания карточки
   // подписаться на захват карточки и определение ее в чужую колонку
   // если попала в чужую и отпустили событие запихивание этой карточки в новую колонку(та же функц)
-  eventCardMove(id) {
-    this.actualElement = document.querySelector(`.data-id_${id}`);
-    // console.log(this.actualElement);
+  eventCardMove(e) {
+    // this.actualElement = document.querySelector(`.data-id_${id}`);
+    // Метод getBoundingClientRect() возвращает объект DOMRect, 
+    // который содержит размеры элемента и его положение относительно видимой области просмотра.
+    // Если из координат курсора мыши (e.clientX и e.clientY) вычесть положение элемента, 
+    // то можно получить внутреннее положение курсора и клика.
+    const elemPosition = this.actualElement.getBoundingClientRect();
+    this.cursorX = e.clientX - elemPosition.left;
+    this.cursorY = e.clientY - elemPosition.top;
 
     this.actualElement.classList.add('dragged');
+    document.body.style.cursor = 'grabbing';// в css браузер подменяет его    
 
     document.documentElement.addEventListener('mouseup', this.onMouseUp);
     document.documentElement.addEventListener('mouseover', this.onMouseOver);
   }
 
   onMouseOver(e) {
-    this.actualElement.style.top = `${e.clientY}px`;
-    this.actualElement.style.left = `${e.clientX}px`;
+    // this.actualElement.style.top = `${e.clientY}px`;
+    // this.actualElement.style.left = `${e.clientX}px`;
+    this.actualElement.style.left = `${e.pageX - this.cursorX}px`;
+    this.actualElement.style.top = `${e.pageY - this.cursorY}px`;
   }
   //
 
