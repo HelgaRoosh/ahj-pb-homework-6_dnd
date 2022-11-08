@@ -56,7 +56,28 @@
   flex-direction: row;
   flex-wrap: nowrap;
   width: 100%;
+}
 
+.card_clone {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.card_clone_input {
+  margin: 2%;
+  width: 96%;
+  height: 80px;
+  border-radius: 7px;
+  border: 1px solid rgb(102, 85, 85);
+  box-shadow: 10px 5px 5px rgb(68, 58, 58);
+  
+  font-size: 16px;
+  color: indigo;
+  padding: 20px;
+
+  resize:none;
 }
 
 .card_input {

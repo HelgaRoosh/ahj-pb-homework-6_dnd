@@ -10,6 +10,10 @@ export default class CardManager {
     this.finalMouseUp = this.finalMouseUp.bind(this);
 
     this.eventCardMove = this.eventCardMove.bind(this);
+
+    this.actualElementClone = null;
+
+    this.deleteClone = this.deleteClone.bind(this);
   }
   // здесь взаимодействие с кнопками в колонке и между колонок
 
@@ -131,8 +135,6 @@ export default class CardManager {
   }
 
   // событие перетаскивания карточки
-  // подписаться на захват карточки и определение ее в чужую колонку
-  // если попала в чужую и отпустили событие запихивание этой карточки в новую колонку(та же функц)
   eventCardMove(e) {
     // this.actualElement = document.querySelector(`.data-id_${id}`);
     // Метод getBoundingClientRect() возвращает объект DOMRect,
@@ -143,25 +145,51 @@ export default class CardManager {
     this.cursorX = e.clientX - elemPosition.left;
     this.cursorY = e.clientY - elemPosition.top;
 
-    this.actualElement.classList.add('dragged');
-    document.body.style.cursor = 'grabbing';// в css браузер подменяет его
+    this.actualElement.classList.add('dragged');// делаем карточку перетаскиваемой
+    document.body.style.cursor = 'grabbing';// изменить курсор,в css браузер подменяет его
 
-    document.documentElement.addEventListener('mouseup', this.onMouseUp);
+    // document.documentElement.addEventListener('mouseup', this.onMouseUp);
     document.documentElement.addEventListener('mouseover', this.onMouseOver);
   }
+
+  /* cloneMap() {
+    if (this.actualElementClone !== null) {
+      this.deleteClone();
+    }
+    return `<div class="card_content card_clone">
+    <textarea class="card_clone_input" type="text" placeholder="put the card here"></textarea>
+    </div>`;
+  } */
 
   onMouseOver(e) {
     // this.actualElement.style.top = `${e.clientY}px`;
     // this.actualElement.style.left = `${e.clientX}px`;
     this.actualElement.style.left = `${e.pageX - this.cursorX}px`;
     this.actualElement.style.top = `${e.pageY - this.cursorY}px`;
-  }
-  //
 
-  onMouseUp(e) {
-    const { target } = e;
+    // const { target } = e;
+    this.actualElementClone = this.actualElement.cloneNode(true);// копия карточки
+    // Эту копию затем можно вставить на страницу с помощью методов
+    // prepend, append, appendChild, insertBefore или insertAdjacentElement.
+    this.actualElementClone.querySelector('.card_input').className = 'card_clone_input';// стилизуем копию
+    this.actualElementClone.className = 'card_clone';
 
-    const targetColumn = target.closest('.column-item');
+    const newPlace = document.elementFromPoint(e.clientX, e.clientY);
+    // возвращает самый глубоко вложенный элемент в окне, находящийся по координатам
+    if (newPlace.closest('.card_content')) {
+      newPlace.closest('.cards').insertBefore(this.actualElementClone, newPlace.closest('.card_content'));
+      // родитель.insertBefore(элемент, перед кем вставить)
+    } else if (newPlace.closest('.column-item')) {
+      newPlace.closest('.column-item').querySelector('.cards').appendChild(this.actualElementClone);
+      // добавляет узел в конец списка дочерних элементов указанного родительского узла
+    }
+
+    if (document.querySelector('.card_clone') !== null) {
+      this.actualElementClone.addEventListener('mouseout', this.deleteClone);
+      document.documentElement.addEventListener('mouseup', this.onMouseUp);
+    }
+
+    /* const targetColumn = target.closest('.column-item');
     // мы внутри колонки
     if (targetColumn !== null) {
       const targetCards = targetColumn.querySelector('.cards');// место для карточек
@@ -169,58 +197,87 @@ export default class CardManager {
 
       // мы внутри контейнера для карточек
       if (target.closest('.cards') !== null) {
-        const parent = target.closest('.card_content');
-        // попали внутрь какой то карточки
-        if (parent !== null) {
-          mouseUpItem = parent;
-          targetCards.insertBefore(this.actualElement, mouseUpItem);// ставим перед этой карточкой
-          this.finalMouseUp();
-          return;
-        }
-        // пустая обрасть в cards
         mouseUpItem = targetCards.querySelector('.card_content');
+        console.log(mouseUpItem);
         if (mouseUpItem !== null) { // есть ли карточки в колонке
+
+          // почему то запускается даже когда карточек нет и дает ошибку:
+          // Failed to execute 'insertAdjacentHTML' on 'Element': The element has no parent.
+
           // если есть
-          targetCards.insertBefore(this.actualElement, mouseUpItem);// ставим перед этой карточкой
-          this.finalMouseUp();
-          return;
+          mouseUpItem.insertAdjacentHTML('beforeBegin', this.cloneMap());
+          // ставим перед этой карточкой
+          this.actualElementClone = targetColumn.querySelector('.card_clone');
+          this.actualElementClone.addEventListener('mouseout', this.deleteClone);
+          document.documentElement.addEventListener('mouseup', this.onMouseUp);
         }
         // если карточек в колонке нет
-        targetCards.insertAdjacentElement('beforeEnd', this.actualElement);// ставим карточку внутрь
-        this.finalMouseUp();
-        return;
+        targetCards.insertAdjacentHTML('beforeEnd', this.cloneMap());// ставим карточку внутрь
+        this.actualElementClone = targetColumn.querySelector('.card_clone');
+        this.actualElementClone.addEventListener('mouseout', this.deleteClone);
+        document.documentElement.addEventListener('mouseup', this.onMouseUp);
       }
 
       // мы внутри контейнера с заголовком
       if (target.closest('.column_title') !== null) {
         // поставить первой в контейнер с карточками
-        targetCards.insertAdjacentElement('beforeBegin', this.actualElement);// ставим карточку внутрь
-        this.finalMouseUp();
-        return;
+        targetCards.insertAdjacentHTML('afterBegin', this.cloneMap());// ставим карточку внутрь
+        this.actualElementClone = targetColumn.querySelector('.card_clone');
+        this.actualElementClone.addEventListener('mouseout', this.deleteClone);
+        document.documentElement.addEventListener('mouseup', this.onMouseUp);
       }
 
       // мы внутри контейнера контроль
       if (target.closest('.card_control') !== null) {
         // поставить последней в контейнер с карточками
-        targetCards.insertAdjacentElement('beforeEnd', this.actualElement);// ставим карточку внутрь
-        this.finalMouseUp();
-        return;
+        targetCards.insertAdjacentHTML('beforeEnd', this.cloneMap());// ставим карточку внутрь
+        this.actualElementClone = targetColumn.querySelector('.card_clone');
+        this.actualElementClone.addEventListener('mouseout', this.deleteClone);
+        document.documentElement.addEventListener('mouseup', this.onMouseUp);
       }
 
       // мы не попали ни в один контейнер в колонке
       mouseUpItem = targetCards.querySelector('.card_content');
       if (mouseUpItem !== null) { // есть ли карточки в колонке
         // если есть
-        targetCards.insertBefore(this.actualElement, mouseUpItem);// ставим перед этой карточкой
-        this.finalMouseUp();
-        return;
+        mouseUpItem.insertAdjacentHTML('afterBegin', this.cloneMap());// ставим перед этой карточкой
+
+        this.actualElementClone = targetColumn.querySelector('.card_clone');
+        this.actualElementClone.addEventListener('mouseout', this.deleteClone);
+        document.documentElement.addEventListener('mouseup', this.onMouseUp);
       }
       // если карточек в колонке нет
-      targetCards.insertAdjacentElement('beforeEnd', this.actualElement);// ставим карточку внутрь
+      targetCards.insertAdjacentHTML('beforeEnd', this.cloneMap());// ставим карточку внутрь
+      this.actualElementClone = targetColumn.querySelector('.card_clone');// выводит в консоль
+      // но потом говорит, что addEventListener от null
+      this.actualElementClone.addEventListener('mouseout', this.deleteClone);
+      document.documentElement.addEventListener('mouseup', this.onMouseUp);
+    } */
+  }
+  //
+
+  deleteClone() {
+    this.actualElementClone.removeEventListener('mouseout', this.deleteClone);
+    this.actualElementClone.remove();
+    this.actualElementClone = null;
+  }
+
+  onMouseUp(e) {
+    const place = document.elementFromPoint(e.clientX, e.clientY);
+    if (place.closest('.card_clone') !== null) {
+      place.closest('.cards').insertBefore(this.actualElement, this.actualElementClone);
+      this.deleteClone();
       this.finalMouseUp();
-      return;
     }
-    // мы не внутри колонки
+    /* const { target } = e;
+    if (target.closest('.card_clone') !== null) {
+      // this.putCard();
+      const targetCards = this.container.querySelector('.cards');
+      targetCards.insertBefore(this.actualElement, this.actualElementClone);
+      this.deleteClone();
+      this.finalMouseUp();
+    } */
+    // мы не внутри
     this.finalMouseUp();
   }
 
